@@ -5,6 +5,7 @@
 # A script to grab all the desktop images from simpledesktops.com
 
 import os.path
+import sys
 from pickle import dump, load
 from optparse import OptionParser
 from shutil import copyfileobj
@@ -17,7 +18,7 @@ SCRAPE_URI = "http://simpledesktops.com/download/"
 
 def scrape(dir=os.path.curdir, dry_run=False, force=False, verbose=False):
     metadata = []
-
+    dir=sys.path[0]
     # read metadata cache
     if not dir:
         dir = os.path.curdir
@@ -44,7 +45,7 @@ def scrape(dir=os.path.curdir, dry_run=False, force=False, verbose=False):
             uri = SCRAPE_URI + "?desktop=" + str(ii)
             if verbose:
                 print("  GET " + uri),
-            resource = urlopen(SCRAPE_URI + "?desktop=" + str(ii))
+            resource = urlopen(uri)
         except HTTPError:
             if verbose:
                 print(" => 404" )
@@ -57,7 +58,7 @@ def scrape(dir=os.path.curdir, dry_run=False, force=False, verbose=False):
             if not dry_run:
                 image_file = os.path.join(dir, os.path.basename(resource.geturl()))
                 with open(image_file, "wb") as f:
-                    copyfileobj(resource, f, -1)
+                    copyfileobj(resource, f, resource.length)
             last_success = ii
         ii += 1
 
